@@ -1,0 +1,48 @@
+db:
+#  image: postgres
+  build: ./db
+  command: /bin/bash -c "/usr/sbin/sshd; /etc/service/postgres/postgresini.sh; tail -F /etc/passwd"
+  ports:
+#    - "${PORTPSQL}:5432"
+    - "${PORTSSHPSQL}:22"
+  expose:
+    - "5432"
+  volumes:
+    - ./db:/code
+
+web:
+### The path of docker-compose.yml is the current path
+  build: ./web
+  command: /bin/bash -c "/usr/sbin/sshd; /etc/service/django/djangoini.sh; python /etc/service/django/manage.py runserver 0.0.0.0:8887; tail -F /etc/passwd"
+  links:
+    - db
+    - nosql
+  ports:
+    - "${PORTDjango}:8887"
+    - "${PORTSSHDjango}:22"
+  volumes:
+    - ./web:/code
+
+
+
+nosql:
+  build: ./nosql
+  command: /bin/bash -c "/usr/sbin/sshd; /etc/service/redis/redisini.sh; tail -F /etc/passwd"
+  ports:
+#    - "${PORTRedis}:6379"
+    - "${PORTSSHRedis}:22"
+  expose:
+    - "6379"
+  volumes:
+    - ./nosql:/code
+
+proxy:
+  build: ./proxy
+#  command: /bin/bash -c "/etc/service/nginx/nginxini.sh; tail -F /etc/hosts"
+  ports:
+    - "${PORTNginx}:8080"
+#    - "${PORTSSHNginx}:22"
+  links:
+    - web
+  volumes:
+    - ./proxy:/code

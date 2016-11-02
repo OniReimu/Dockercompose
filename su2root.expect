@@ -1,0 +1,7 @@
+#!/usr/bin/expect
+
+spawn su - root
+expect {
+"assword:" {send "vagrant\r"}
+}
+interact
