@@ -41,21 +41,23 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   portPSQL = 5432
   portRedis = 6379
   portNginx = 8080
+  portApache = 8888
 
   portSSHDjango = 8022
   portSSHPSQL = 8023
   portSSHRedis = 8024
-#  portSSHNginx = 8025
+  portSSHApache = 8025
 
   config.vm.network(:forwarded_port, guest: portDjango, host: portDjango)
   config.vm.network(:forwarded_port, guest: portPSQL, host: portPSQL)
   config.vm.network(:forwarded_port, guest: portRedis, host: portRedis)
   config.vm.network(:forwarded_port, guest: portNginx, host: portNginx)
+  config.vm.network(:forwarded_port, guest: portApache, host: portApache)
 
   config.vm.network(:forwarded_port, guest: 22, host: portSSHDjango)
   config.vm.network(:forwarded_port, guest: 22, host: portSSHPSQL)
   config.vm.network(:forwarded_port, guest: 22, host: portSSHRedis)
-#  config.vm.network(:forwarded_port, guest: 22, host: portSSHNginx)
+  config.vm.network(:forwarded_port, guest: 22, host: portSSHApache)
 
   
 
@@ -74,7 +76,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 #  config.ssh.username = "root"
 #  config.ssh.private_key_path = "insecure_key"
 
-  config.vm.provision :docker_compose, env: { "PORTSSHRedis" => "#{portSSHRedis}","PORTSSHDjango" => "#{portSSHDjango}","PORTSSHPSQL" => "#{portSSHPSQL}","PORTDjango" => "#{portDjango}", "PORTPSQL" => "#{portPSQL}", "PORTRedis" => "#{portRedis}", "PORTNginx" => "#{portNginx}"}, yml: "/vagrant/docker-compose.yml", rebuild: true, run: "always"
+  config.vm.provision :docker_compose, env: { "PORTSSHApache" => "#{portSSHApache}","PORTSSHRedis" => "#{portSSHRedis}","PORTSSHDjango" => "#{portSSHDjango}","PORTSSHPSQL" => "#{portSSHPSQL}","PORTApache" => "#{portApache}","PORTDjango" => "#{portDjango}", "PORTPSQL" => "#{portPSQL}", "PORTRedis" => "#{portRedis}", "PORTNginx" => "#{portNginx}"}, yml: "/vagrant/docker-compose.yml", rebuild: true, run: "always"
 
 end
 

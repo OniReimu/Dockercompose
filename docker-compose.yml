@@ -1,5 +1,4 @@
 db:
-#  image: postgres
   build: ./db
   command: /bin/bash -c "/usr/sbin/sshd; /etc/service/postgres/postgresini.sh; tail -F /etc/passwd"
   ports:
@@ -18,12 +17,25 @@ web:
     - db
     - nosql
   ports:
-    - "${PORTDjango}:8887"
+#    - "${PORTDjango}:8887"
     - "${PORTSSHDjango}:22"
+  expose:
+    - "8887"
   volumes:
     - ./web:/code
 
-
+web2:
+  build: ./web2
+  command: /bin/bash -c "/usr/sbin/sshd; service apache2 restart; tail -F /etc/passwd"
+  links:
+    - db
+    - nosql
+  ports:
+    - "${PORTSSHApache}:22"
+  expose:
+    - "8888"
+  volumes:
+    - ./web2:/code
 
 nosql:
   build: ./nosql
@@ -38,11 +50,10 @@ nosql:
 
 proxy:
   build: ./proxy
-#  command: /bin/bash -c "/etc/service/nginx/nginxini.sh; tail -F /etc/hosts"
   ports:
     - "${PORTNginx}:8080"
-#    - "${PORTSSHNginx}:22"
   links:
     - web
+    - web2
   volumes:
     - ./proxy:/code
