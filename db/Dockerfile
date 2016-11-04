@@ -12,6 +12,7 @@ RUN echo `ls /code`
 RUN apt-get update
 RUN apt-get install -y inetutils-ping net-tools sudo git
 RUN apt-get install -y postgresql
+#RUN apt-get install -y postgresql-contrib pgadmin3
 RUN echo "Hello world! Here is Postgres!!!"
 
 #Creating projcet folder for Postgres

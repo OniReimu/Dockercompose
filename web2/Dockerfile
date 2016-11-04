@@ -12,7 +12,9 @@ RUN echo `ls /code`
 RUN apt-get update
 RUN apt-get install -y inetutils-ping net-tools sudo git
 RUN apt-get install -y apache2 apache2-doc apache2-utils
+#RUN apt-get install -y phppgadmin
 RUN sed -i "s#^.*KeepAlive.*#KeepAlive Off#" /etc/apache2/apache2.conf
+
 RUN sed -i "s#Listen 80#Listen 8888#" /etc/apache2/ports.conf
 
 
@@ -32,10 +34,10 @@ ADD index.php /var/www/example/public_html
 
 ###Enable scripting of PHP
 RUN apt-get install -y aptitude
-RUN sudo aptitude purge `dpkg -l | grep php| awk '{print $2}' |tr "\n" " "`
+#RUN sudo aptitude purge `dpkg -l | grep php| awk '{print $2}' |tr "\n" " "`
 RUN sudo add-apt-repository ppa:ondrej/php
 RUN sudo apt-get update
-RUN apt-get install -y libapache2-mod-php5.6 php5.6 php-xdebug php5.6-xcache php-gettext php5.6-mbstring
+RUN apt-get install -y libapache2-mod-php5.6 php5.6 php5.6-xdebug php5.6-xcache php5.6-gettext php5.6-mbstring php5.6-redis php5.6-pgsql
 RUN sed -i "s#;extension=php_pgsql.dll#extension=php_pgsql.dll#" /etc/php/5.6/apache2/php.ini
 RUN sudo a2enmod php5.6
 
