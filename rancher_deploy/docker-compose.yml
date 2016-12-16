@@ -1,0 +1,85 @@
+version: '2'
+services:
+    data:
+        labels:
+            io.rancher.scheduler.global: 'true'
+            io.rancher.scheduler.affinity:host_label: reimu=saber
+        tty: true
+        stdin_open: true
+        restart: 'no'
+        container_name: practera-data
+#        build: /Users/guest2/Desktop/dockertest/practera/docker/develop/data
+        # image: practera/data  # use images to prevent docker container duplication
+        image: local/data
+        command: tail -F /etc/hosts
+        volumes:
+#          - /Users/guest2/Desktop/vagrantdocker/vagrant_rancher/docker:/app
+          - /vagrant/docker:/app
+
+    web:
+        labels:
+            io.rancher.scheduler.global: 'true'
+            io.rancher.scheduler.affinity:host_label: reimu=saber
+            io.rancher.sidekicks: data, postgres, analytics
+        tty: true
+        stdin_open: true
+        container_name: practera-web
+        image: 350544449840.dkr.ecr.ap-southeast-2.amazonaws.com/practera/develop:latest
+        # image: practera/develop  # use images to prevent docker container duplication
+        #build: docker/develop/develop
+        dns:
+            - 8.8.8.8
+            - 8.8.4.4
+        ports:
+            - 8000:80/tcp
+        links:
+            - postgres
+            - redis
+        volumes_from:
+            - data
+
+    postgres:
+        labels:
+            io.rancher.scheduler.global: 'true'
+            io.rancher.scheduler.affinity:host_label: reimu=saber
+        tty: true
+        stdin_open: true
+        container_name: practera-postgres
+        image: postgres:9.4
+        ports:
+            - 5432:5432/tcp
+        environment:
+            - LC_ALL=C.UTF-8
+            - PGDATA=/pgdata
+        volumes:
+#          - /Users/guest2/Desktop/vagrantdocker/vagrant_rancher/docker/develop/postgres/entrypoint:/docker-entrypoint-initdb.d
+            - /vagrant/docker/develop/postgres/entrypoint:/docker-entrypoint-initdb.d
+        volumes_from:
+            - data
+
+    redis:
+        labels:
+            io.rancher.scheduler.global: 'true'
+            io.rancher.scheduler.affinity:host_label: reimu=saber
+        tty: true
+        stdin_open: true
+        container_name: practera-redis
+        image: redis
+
+    analytics:
+        labels:
+            io.rancher.scheduler.global: 'true'
+            io.rancher.scheduler.affinity:host_label: reimu=saber
+        stdin_open: true
+        container_name: practera-analytics
+        image: 350544449840.dkr.ecr.ap-southeast-2.amazonaws.com/practera/analytics:latest
+        # image: practera/analytics
+        dns:
+            - 8.8.8.8
+            - 8.8.4.4
+        links:
+            - postgres
+        ports:
+            - 8787:8787/tcp
+        volumes_from:
+            - data

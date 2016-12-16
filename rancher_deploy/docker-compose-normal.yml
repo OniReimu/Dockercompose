@@ -1,0 +1,64 @@
+data:
+  labels: 
+    - io.rancher.container.network=true
+  container_name: practera-data
+  build: /Users/guest2/Desktop/dockertest/practera/docker/develop/data
+        # image: practera/data  # use images to prevent docker container duplication
+        #image: 350544449840.dkr.ecr.us-east-1.amazonaws.com/practera/data:latest
+  volumes:
+    - /Users/guest2/Desktop/dockertest/practera:/app
+
+web:
+  labels: 
+    - io.rancher.container.network=true
+  container_name: practera-web
+  image: 350544449840.dkr.ecr.ap-southeast-2.amazonaws.com/practera/develop:latest
+        # image: practera/develop  # use images to prevent docker container duplication
+        #build: docker/develop/develop
+  dns:
+    - 8.8.8.8
+    - 8.8.4.4
+  ports:
+    - "8000:80"
+  links:
+    - postgres
+    - redis
+  volumes_from:
+    - data
+
+postgres:
+  labels: 
+    - io.rancher.container.network=true
+  container_name: practera-postgres
+  image: postgres:9.4
+  ports:
+    - "5432:5432"
+  environment:
+    - LC_ALL=C.UTF-8
+    - PGDATA=/pgdata
+  volumes:
+    - /Users/guest2/Desktop/dockertest/practera/docker/develop/postgres/entrypoint:/docker-entrypoint-initdb.d
+  volumes_from:
+    - data
+
+redis:
+  labels: 
+    - io.rancher.container.network=true
+  container_name: practera-redis
+  image: redis
+
+analytics:
+  labels: 
+    - io.rancher.container.network=true
+  container_name: practera-analytics
+  image: 350544449840.dkr.ecr.ap-southeast-2.amazonaws.com/practera/analytics:latest
+        # image: practera/analytics
+  dns:
+    - 8.8.8.8
+    - 8.8.4.4
+  links:
+    - postgres
+  ports:
+    - "8787:8787"
+  volumes_from:
+    - data
